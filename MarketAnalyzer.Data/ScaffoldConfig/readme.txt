@@ -11,7 +11,7 @@ a) Scaffolding
 
 Go to the cmd line, go to the BlockBase.Web.Data folder, and run the following command:
 
-dotnet ef dbcontext scaffold "server=tcp:fiou7xui1l.database.windows.net,1433;user=appadmin;password=qwert#4477;database=MarketAnalyzerDB2" Microsoft.EntityFrameworkCore.SqlServer --force
+dotnet ef dbcontext scaffold "connectionstring" Microsoft.EntityFrameworkCore.SqlServer --force
 
 
 Notes:
