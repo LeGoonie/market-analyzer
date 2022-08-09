@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\..\..\..\..\..\Migrations\20200812091024_InitialCreate.cs" Link="20200812091024_InitialCreate.cs" />
+    <Compile Include="..\..\..\..\..\..\..\Migrations\20200812091024_InitialCreate.designer.cs" Link="20200812091024_InitialCreate.designer.cs" />
+    <Compile Include="..\..\..\..\..\..\..\ScaffoldConfig\20200812085327_CreateIdentitySchema.cs" Link="20200812085327_CreateIdentitySchema.cs" />
+    <Compile Include="..\..\..\..\..\..\..\ScaffoldConfig\20200812085327_CreateIdentitySchema.designer.cs" Link="20200812085327_CreateIdentitySchema.designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Pluralize.NET.Core" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
+</Project>

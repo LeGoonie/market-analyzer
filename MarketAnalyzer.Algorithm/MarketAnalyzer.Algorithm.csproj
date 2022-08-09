@@ -1,0 +1,173 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Algorithm.deps.json" />
+    <Content Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Algorithm.runtimeconfig.dev.json" />
+    <Content Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Algorithm.runtimeconfig.json" />
+    <Content Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Algorithm.deps.json" />
+    <Content Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Algorithm.runtimeconfig.dev.json" />
+    <Content Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Algorithm.runtimeconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="bin\Debug\netcoreapp3.1\Fastenshtein.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\HtmlAgilityPack.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Algorithm.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Algorithm.exe" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Algorithm.pdb" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Analysis.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Analysis.pdb" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Business.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Business.pdb" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Core.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Core.pdb" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Data.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Data.pdb" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.DataAccess.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.DataAccess.pdb" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Scrapper.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\MarketAnalyzer.Scrapper.pdb" />
+    <None Include="bin\Debug\netcoreapp3.1\MathNet.Numerics.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Authentication.Abstractions.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Authentication.Cookies.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Authentication.Core.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Authentication.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Cryptography.Internal.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.DataProtection.Abstractions.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.DataProtection.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Hosting.Abstractions.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Hosting.Server.Abstractions.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Http.Abstractions.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Http.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Http.Extensions.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Http.Features.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Identity.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.WebUtilities.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.EntityFrameworkCore.Abstractions.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.EntityFrameworkCore.Design.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.EntityFrameworkCore.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.EntityFrameworkCore.Relational.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.EntityFrameworkCore.SqlServer.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.Caching.Abstractions.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.Caching.Memory.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.Abstractions.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.Binder.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.Configuration.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.DependencyInjection.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.FileProviders.Abstractions.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.Hosting.Abstractions.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.Identity.Core.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.Identity.Stores.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.Abstractions.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.Logging.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.ObjectPool.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.Options.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.Primitives.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Extensions.WebEncoders.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Microsoft.Net.Http.Headers.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Pluralize.NET.Core.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\Remotion.Linq.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\runtimes\win-arm64\native\sni.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\runtimes\win-x64\native\sni.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\runtimes\win-x86\native\sni.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.1\System.Security.Cryptography.Pkcs.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\System.ComponentModel.Composition.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\System.Data.SqlClient.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\System.Interactive.Async.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\System.Security.Cryptography.Pkcs.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\System.Security.Cryptography.Xml.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\System.Security.Permissions.dll" />
+    <None Include="bin\Debug\netcoreapp3.1\System.Xml.XPath.XmlDocument.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Fastenshtein.dll" />
+    <None Include="bin\Release\netcoreapp3.1\HtmlAgilityPack.dll" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Algorithm.dll" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Algorithm.exe" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Algorithm.pdb" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Analysis.dll" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Analysis.pdb" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Business.dll" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Business.pdb" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Core.dll" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Core.pdb" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Data.dll" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Data.pdb" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.DataAccess.dll" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.DataAccess.pdb" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Scrapper.dll" />
+    <None Include="bin\Release\netcoreapp3.1\MarketAnalyzer.Scrapper.pdb" />
+    <None Include="bin\Release\netcoreapp3.1\MathNet.Numerics.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Authentication.Abstractions.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Authentication.Cookies.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Authentication.Core.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Authentication.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Cryptography.Internal.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.DataProtection.Abstractions.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.DataProtection.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Hosting.Abstractions.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Hosting.Server.Abstractions.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Http.Abstractions.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Http.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Http.Extensions.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Http.Features.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Identity.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.AspNetCore.WebUtilities.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.EntityFrameworkCore.Abstractions.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.EntityFrameworkCore.Design.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.EntityFrameworkCore.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.EntityFrameworkCore.Relational.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.EntityFrameworkCore.SqlServer.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.Caching.Abstractions.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.Caching.Memory.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.Configuration.Abstractions.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.Configuration.Binder.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.Configuration.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.DependencyInjection.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.FileProviders.Abstractions.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.Hosting.Abstractions.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.Identity.Core.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.Identity.Stores.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.Logging.Abstractions.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.Logging.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.ObjectPool.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.Options.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.Primitives.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Extensions.WebEncoders.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Microsoft.Net.Http.Headers.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Newtonsoft.Json.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Pluralize.NET.Core.dll" />
+    <None Include="bin\Release\netcoreapp3.1\Remotion.Linq.dll" />
+    <None Include="bin\Release\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll" />
+    <None Include="bin\Release\netcoreapp3.1\runtimes\win-arm64\native\sni.dll" />
+    <None Include="bin\Release\netcoreapp3.1\runtimes\win-x64\native\sni.dll" />
+    <None Include="bin\Release\netcoreapp3.1\runtimes\win-x86\native\sni.dll" />
+    <None Include="bin\Release\netcoreapp3.1\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll" />
+    <None Include="bin\Release\netcoreapp3.1\runtimes\win\lib\netcoreapp2.1\System.Security.Cryptography.Pkcs.dll" />
+    <None Include="bin\Release\netcoreapp3.1\System.ComponentModel.Composition.dll" />
+    <None Include="bin\Release\netcoreapp3.1\System.Data.SqlClient.dll" />
+    <None Include="bin\Release\netcoreapp3.1\System.Interactive.Async.dll" />
+    <None Include="bin\Release\netcoreapp3.1\System.Security.Cryptography.Pkcs.dll" />
+    <None Include="bin\Release\netcoreapp3.1\System.Security.Cryptography.Xml.dll" />
+    <None Include="bin\Release\netcoreapp3.1\System.Security.Permissions.dll" />
+    <None Include="bin\Release\netcoreapp3.1\System.Xml.XPath.XmlDocument.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MarketAnalyzer.Business\MarketAnalyzer.Business.csproj" />
+    <ProjectReference Include="..\MarketAnalyzer.DataAccess\MarketAnalyzer.DataAccess.csproj" />
+  </ItemGroup>
+
+</Project>

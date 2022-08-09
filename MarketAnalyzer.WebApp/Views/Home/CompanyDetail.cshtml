@@ -1,0 +1,800 @@
+﻿@using MarketAnalyzer.Data.Extensions
+@using  MarketAnalyzer.WebApp.Common
+@using MarketAnalyzer.Analysis
+@using Microsoft.AspNetCore.Html
+@model DetailViewModel
+
+@{
+
+    IHtmlContent ValueSlopeInfo(SlopeInfo slopeInfo, bool toPerc = false)
+    {
+
+        return SpanContent(ColorStyle(slopeInfo.ValueSlope.Round(), -0.1, 0.1), toPerc ? slopeInfo.ValueSlope.Round().ToPerc() : slopeInfo.ValueSlope.Round().ToString());
+    }
+
+    IHtmlContent MedianValueInfo(SlopeInfo slopeInfo, bool toPerc = false)
+    {
+
+        return SpanContent(ColorStyle(slopeInfo.MedianValue.Round(), 0, 0.1), toPerc ? slopeInfo.MedianValue.Round().ToPerc() : slopeInfo.MedianValue.Round().ToString());
+    }
+
+    IHtmlContent DeviationValueInfo(SlopeInfo slopeInfo)
+    {
+
+        return SpanContent(
+            ColorStyle(1 - slopeInfo.ValuePercentageDeviation.Round(), 0.4, 0.8),
+            slopeInfo.ValuePercentageDeviation.Round().ToPerc());
+    }
+
+    IHtmlContent GrowthSlopeInfo(SlopeInfo slopeInfo)
+    {
+
+        return SpanContent(ColorStyle(slopeInfo.GrowthSlope.Round(), -0.1, 0.1), slopeInfo.GrowthSlope.Round().ToPerc());
+    }
+
+    IHtmlContent MedianGrowthInfo(SlopeInfo slopeInfo, double min = 0, double max = 0.1)
+    {
+
+        return SpanContent(ColorStyle(slopeInfo.MedianGrowth.Round(), 0, 0.1), slopeInfo.MedianGrowth.Round().ToPerc());
+    }
+
+    IHtmlContent DeviationGrowthInfo(SlopeInfo slopeInfo)
+    {
+
+        return SpanContent(
+            ColorStyle(1 - slopeInfo.GrowthPercentageDeviation.Round(), 0.4, 0.8),
+            slopeInfo.GrowthPercentageDeviation.Round().ToPerc());
+    }
+
+    IHtmlContent MarketCapGrowth(double value)
+    {
+        return SpanContent(ColorStyle(value.Round(), 1.5, 3), value.Round().ToPerc());
+    }
+
+    IHtmlContent SpanContent(string color, string value)
+    {
+        return Html.Raw($"<span style='background-color:{color}'>{value}</span>");
+    }
+
+    string CreateGoogleSearch(params string[] items)
+    {
+        var query = "https://www.google.com/search?q=";
+        for (int i = 0; i < items.Count(); i++)
+        {
+            if (i == 0) query += items[i];
+            else query += "+" + items[i];
+        }
+
+        return query;
+    }
+
+    string CreateUrl(string url, params string[] parameters)
+    {
+        return string.Format(url, parameters);
+    }
+
+    string ColorStyle(double value, double lowCutOff, double highCutOff, bool invert = false)
+    {
+        if (!invert)
+        {
+            if (value >= highCutOff) return "lightgreen";
+            if (value <= lowCutOff) return "orangered";
+            return "yellow";
+        }
+        else
+        {
+            if (value >= highCutOff) return "orangered";
+            if (value <= lowCutOff) return "lightgreen";
+            return "yellow";
+        }
+    }
+}
+
+
+    <div>
+
+        @section Scripts {
+            <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+        }
+
+        @{ var index = 0; }
+
+        <style type="text/css">
+            .buy {
+                width: 20px;
+                height: 20px;
+            }
+
+            .checked {
+                color: orange;
+            }
+
+            form {
+                margin: 10px auto;
+                width: 66%;
+            }
+
+            .form-row {
+                padding: 5px 10px;
+            }
+
+            label {
+                display: block;
+                margin: 3px 0;
+            }
+
+            .form-row input {
+                padding: 3px 1px;
+                width: 100%;
+            }
+
+            input.currency {
+                text-align: right;
+                padding-right: 15px;
+            }
+
+            .input-group .form-control {
+                float: none;
+            }
+
+            .input-group .input-buttons {
+                position: relative;
+                z-index: 3;
+            }
+
+            .investmentRow {
+                margin-right: -120px;
+            }
+
+            .selectt{
+	            display:none;
+                padding:10px;
+            }  
+        </style>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+                $('[type="date"]').prop('max', function () {
+                    return new Date().toJSON().split('T')[0];
+                });
+                $('.buy').click(function () {
+                    var checkBoxId = $(this).attr('id').split('_')[0];
+                    var companyId = $(this).attr('id').split('_')[1];
+                    var isChecked = $(this).is(':checked');
+                    ajaxRequest('/home/togglebuystock', JSON.stringify({ CompanyId: companyId, CheckBoxId: checkBoxId, IsChecked: isChecked }));
+                });
+
+                $('.save-button').click(function () {
+
+                    var companyId = $(this).attr('id').split('_')[1];
+                    var textareaId = '#notes_' + companyId;
+                    var textareaContent = $(textareaId).val();
+                    ajaxRequest('home/addnote', JSON.stringify({ CompanyId: companyId, Message: textareaContent }));
+                });
+
+                $('input[type="radio"]').click(function(){
+    	            var inputValue = $(this).attr("value"); 
+                    var targetBox = $("." + inputValue); 
+                    $(".selectt").not(targetBox).hide(); 
+                    $(targetBox).show(); 
+                });
+            });
+
+            function ajaxRequest(url, data) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: data,
+                    contentType: "application/json; charset=utf-8",
+                    //dataType: "json",
+                    success: function () {
+                        //alert('it worked');
+                        //alert(data);
+                        //$('#container').html(data);
+                    },
+                    error: function () {
+                        alert('it broke');
+                    },
+                    complete: function () {
+                        //alert('it completed');
+                    }
+                });
+            }
+        </script>
+        @foreach (var s in Model.StocksAnalysis)
+        {
+            <div>
+                <div>
+                    <div class="row">
+                        <span class="h3">
+                            @s.Position. @s.Company.Name
+                        </span>
+                        <span class="h3">
+                            &nbsp;&nbsp;@SpanContent(ColorStyle((double)s.Company.StockPrice, (double)s.StockFitness.BuyValueStockPrice, (double)s.StockFitness.FairValueStockPrice, true), s.Company.StockPrice.Round().ToMoney())
+                        </span>
+                        <span class="h3">
+                            &nbsp;&nbsp;<button id="modalActivate" type="button" class="btn btn-light btn-sm" data-toggle="modal" data-target="@("#exampleModalPreview"+(index+1))">
+                                Personal Notes
+                            </button>
+                        </span>
+                    </div>
+                    <div class="modal fade right" id="@("exampleModalPreview"+(index+1))" tabindex="-1" role="dialog" aria-labelledby="@("exampleModalPreviewLabel"+(index+1))" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog modal-full-height modal-right" role="document">
+                            <div class="modal-content">
+                                <!--Modal cascading tabs-->
+                                <div class="modal-c-tabs">
+                                    <!-- Nav tabs -->
+                                    <ul class="nav nav-tabs md-tabs tabs-2 darken-3" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" data-toggle="tab" href="@("#panel9"+(index+1))" role="tab">
+                                                Last Note
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" data-toggle="tab" href="@("#panel10"+(index+1))" role="tab">
+                                                List of Notes
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                    <!-- Tab panels -->
+                                    <div class="tab-content">
+                                        <!--Panel 7-->
+                                        <div class="tab-pane fade in show active" id="@("panel9"+(index+1))" role="tabpanel">
+                                            <form asp-controller="Home" asp-action="AddNote" method="post">
+                                                <div class="modal-body" style="padding:0px;">
+                                                    <h4>Note</h4>
+                                                    <div class="form-group">
+                                                        <textarea id="notes" asp-for="CompanyNote" class="form-control" rows="7">@Model.CompanyNote</textarea>
+                                                        <input type="hidden" id="company" asp-for="companyId" value="@s.Company.Id">
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+                                                    <button type="submit" id="btnsave" class="btn btn-light" value="Save">Save changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+
+                                        <!--/.Panel 7-->
+                                        <!--Panel 8-->
+                                        <div class="tab-pane fade" id="@("panel10"+(index+1))" role="tabpanel">
+
+                                            <!--Body-->
+                                            <div class="modal-body">
+                                                @foreach(var item in Model.UserNotes)
+                                                {
+                                                <div class="list-group">
+                                                    <a class="list-group-item list-group-item-action flex-column align-items-start">
+                                                        <div class="d-flex w-100 justify-content-between">
+                                                            <h5 class="mb-2 h5">@item.Note</h5>
+                                                            <small class="text-muted">@item.DateCreated.ToShortDateString()</small>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                }
+                                            </div>
+                                            <!--Footer-->
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+                                            </div>
+                                        </div>
+                                        <!--/.Panel 8-->
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        @if (@s.Company.SandPrank != null)
+                        {
+                            <span class="h5 mr-2">
+                                Rank @s.Company.SandPrank in S&P500
+                            </span>
+                        }
+                        <span class="h5">
+                            <a href="@CreateGoogleSearch(s.Company.Ticker, "stock", "price")" target="_blank">@s.Company.Ticker</a>&nbsp;
+                        </span>
+                        <span class="h5">
+                            | <a href="@CreateGoogleSearch("motley", "fool", s.Company.Ticker)" target="_blank">fool</a>&nbsp;
+                        </span>
+                        <span class="h5">
+                            | <a href="@CreateGoogleSearch(s.Company.Name, "stock", "crash")" target="_blank">crash</a>&nbsp;
+                        </span>
+                        <span class="h5">
+                            | <a href="@CreateUrl("https://quickfs.net/company/{0}:US", s.Company.Ticker)" target="_blank">quickfs</a>&nbsp;
+                        </span>
+                        <span class="h5">
+                            | <a href="@CreateUrl("https://finance.yahoo.com/quote/{0}", s.Company.Ticker)" target="_blank">yahoo</a>&nbsp;
+                        </span>
+                        <span class="h5">
+                            | <a href="@CreateUrl("https://trends.google.com/trends/explore?date=all&geo=US&q={0}", s.Company.Name)" target="_blank">trends</a>&nbsp;
+                        </span>
+
+                        <span class="h5">
+                            | <a href="@CreateGoogleSearch(s.Company.Name, "site")" target="_blank">site</a>&nbsp;
+                        </span>
+                        <span class="h5">
+                            | <a href="@CreateGoogleSearch(s.Company.Name, "wiki")" target="_blank">wiki</a>&nbsp;
+                        </span>
+                    </div>
+                </div>
+                <!-- Add icon library -->
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+                <!-- TradingView Widget BEGIN -->
+                <div class="tradingview-widget-container">
+                    <div id="tradingview_cedba"></div>
+                    <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/symbols/@s.Company.Ticker" rel="noopener" target="_blank"><span class="blue-text"></span></a></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                    <script type="text/javascript">
+                        new TradingView.widget(
+                            {
+                                "width": 1200,
+                                "height": 700,
+                                "symbol": "@s.Company.Ticker",
+                                "interval": "W",
+                                "timezone": "Etc/UTC",
+                                "theme": "light",
+                                "style": "1",
+                                "locale": "en",
+                                "range": "36m",
+                                "toolbar_bg": "#f1f3f6",
+                                "enable_publishing": false,
+                                "save_image": false,
+                                "details": true,
+                                "container_id": "tradingview_cedba"
+                            }
+                        );
+                    </script>
+                </div>
+                <!-- TradingView Widget END -->
+            </div>
+            <div class="container mt-5">
+                <div class="d-flex justify-content-between">
+                    <div class="row  align-items-baseline">
+                        @if (s.Company.CapsRating >= 0)
+                        {
+                            <span class="ml-2 h5 mr-2">
+                                <a href="https://caps.fool.com/" target="_blank" data-toggle="tooltip" data-placement="right" title="A CAPS rating indicates a stock's potential to outperform the S&P 500 as determined by the Fool community. Five-star stocks are the highest-rated ones in CAPS, while one-star stocks are the lowest rated. Zero-star stocks are not evaluated by the Fool community.">CAPS Rating</a>
+                            </span>
+                        }
+                        @if (s.Company.CapsRating == 0)
+                        {
+                            <span class="fa fa-star "></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                        }
+                        @if (s.Company.CapsRating == 1)
+                        {
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                        }
+                        else if (s.Company.CapsRating == 2)
+                        {
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                        }
+                        else if (s.Company.CapsRating == 3)
+                        {
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star"></span>
+                            <span class="fa fa-star"></span>
+                        }
+                        else if (s.Company.CapsRating == 4)
+                        {
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star"></span>
+                        }
+                        else if (s.Company.CapsRating == 5)
+                        {
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                            <span class="fa fa-star checked"></span>
+                        }
+                        else
+                        {
+                        }
+                    </div>
+                    @if (s.Company.OutPerformRatio != null)
+                    {
+                        <span class="ml-2 h5">
+                            <a href="https://www.fool.com/knowledge-center/what-does-it-mean-for-a-stock-to-outperform.aspx" target="_blank" data-toggle="tooltip" data-placement="right" title="Ratio between the number of users in the Fool community that think the company will outperform the S&P 500 index to the users that disagree.">Outperform Ratio:</a> @(s.Company.OutPerformRatio)x
+                        </span>
+                    }
+                    @if (s.Company.AllStarRatio != null)
+                    {
+                        <span class="ml-2 h5">
+                            <a href="https://www.fool.com/knowledge-center/what-does-it-mean-for-a-stock-to-outperform.aspx" target="_blank" data-toggle="tooltip" data-placement="right" title="Ratio between the number of all-star users in the Fool community that think the company will outperform the S&P 500 index to the all-star users that disagree.">All-Star Ratio:</a> @(s.Company.AllStarRatio)x
+                        </span>
+                    }
+                </div>
+
+                <div class="row mt-5">
+                    <div class="col-md-6 col-lg-6">
+                        <h4>Financial Data</h4>
+                        <table class="table table-hover table-sm" id="financialData">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Fair Value</th>
+                                    <th scope="col">Buy Value</th>
+                                    <th scope="col">Debt To Equity</th>
+                                    <th scope="col">Assets To Liabilities</th>
+                                    <th scope="col">Low PE</th>
+                                    <th scope="col">PE Ratio</th>
+                                    <th scope="col">High PE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>@s.StockFitness.FairValueStockPrice.Round().ToMoney()</td>
+                                    <td>@s.StockFitness.BuyValueStockPrice.Round().ToMoney()</td>
+                                    <td>@s.StockFitness.DebtToEquityRatio.Round()</td>
+                                    <td>@s.StockFitness.CurrentAssetsToLiabilitiesRatio.Round()</td>
+                                    <td>@s.StockFitness.AverageLowPERatio.Round()</td>
+                                    <td>@s.StockFitness.PriceToEarningsRatio.Round()</td>
+                                    <td>@s.StockFitness.AverageHighPERatio.Round()</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6 col-lg-6">
+                        <h4>Add Investment</h4>
+                        <div class="row">
+                            <form asp-controller="Portfolios" asp-action="AddInvestment" method="post">
+                                <div class="form-group">
+                                    <label asp-for="amountOfStocks">Amount of Stocks</label>
+                                    <input asp-for="amountOfStocks" value="1" class="form-control currency" />
+                                    <label asp-for="priceOfStock">Price of Stock</label>
+                                    <input asp-for="priceOfStock" value="1000" class="form-control currency" id="investment" />
+                                    <label asp-for="dateOfInvestment">Date of Investment</label>
+                                    <input type="date" asp-for="dateOfInvestment" placeholder="Select Date" min="2010-01-01" class="form-control currency">
+                                    <input type="hidden" id="company" asp-for="companyId" value="@s.Company.Id">
+                                    <input class="btn btn-light mt-2" type="submit" value="Add" />
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-5">
+                    <div class="col-md-6 col-lg-6">
+                        <h4>Fitness</h4>
+                        <table class="table table-hover table-sm">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col"><a data-toggle="tooltip" data-placement="right" title="Multiplier: @s.StockFitness.RoicMult">ROIC</a></th>
+                                    <th scope="col"><a data-toggle="tooltip" data-placement="right" title="Multiplier: @s.StockFitness.EquityMult">Equity</a></th>
+                                    <th scope="col"><a data-toggle="tooltip" data-placement="right" title="Multiplier: @s.StockFitness.EpsMult">EPS</a></th>
+                                    <th scope="col"><a data-toggle="tooltip" data-placement="right" title="Multiplier: @s.StockFitness.RevenueMult">Revenue</a></th>
+                                    <th scope="col"><a data-toggle="tooltip" data-placement="right" title="Multiplier: @s.StockFitness.PeMult">PE Ratio</a></th>
+                                    <th scope="col"><a data-toggle="tooltip" data-placement="right" title="Multiplier: @s.StockFitness.EquityMult">Debt Equity</a></th>
+                                    <th scope="col"><a data-toggle="tooltip" data-placement="right" title="Multiplier: @s.StockFitness.AToLMult">Assets To Liabilities</a></th>
+                                    <th scope="col">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Values</th>
+                                    <td>@s.StockFitness.RoicGrowthFitness.Round()</td>
+                                    <td>@s.StockFitness.EquityGrowthFitness.Round()</td>
+                                    <td>@s.StockFitness.EpsGrowthFitness.Round()</td>
+                                    <td>@s.StockFitness.RevenueGrowthFitness.Round()</td>
+                                    <td>@s.StockFitness.PERatioFitness.Round()</td>
+                                    <td>@s.StockFitness.DebtToEquityFitness.Round()</td>
+                                    <td>@s.StockFitness.CurrentAssetsToLiabilitiesFitness.Round()</td>
+                                    <td>@(s.StockFitness.RoicGrowthFitness.Round() + s.StockFitness.EquityGrowthFitness.Round() + s.StockFitness.EpsGrowthFitness.Round() + s.StockFitness.RevenueGrowthFitness.Round() + s.StockFitness.PERatioFitness.Round() + s.StockFitness.DebtToEquityFitness.Round() + s.StockFitness.CurrentAssetsToLiabilitiesFitness.Round())</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Multiplier</th>
+                                    <td>@(Math.Round(s.StockFitness.RoicGrowthFitness * s.StockFitness.RoicMult, 2))</td>
+                                    <td>@(Math.Round(s.StockFitness.EquityGrowthFitness * s.StockFitness.EquityMult, 2))</td>
+                                    <td>@(Math.Round(s.StockFitness.EpsGrowthFitness * s.StockFitness.EpsMult, 2))</td>
+                                    <td>@(Math.Round(s.StockFitness.RevenueGrowthFitness * s.StockFitness.RevenueMult, 2))</td>
+                                    <td>@(Math.Round(s.StockFitness.PERatioFitness * s.StockFitness.PeMult, 2))</td>
+                                    <td>@(Math.Round(s.StockFitness.DebtToEquityFitness * s.StockFitness.EquityMult, 2))</td>
+                                    <td>@(Math.Round(s.StockFitness.CurrentAssetsToLiabilitiesFitness * s.StockFitness.AToLMult, 2))</td>
+                                    <td>@s.StockFitness.FitnessTotal.Round()</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6 col-lg-6">
+                        <div class="row investmentRow">
+                            <script>
+                                function myFunction() {
+                                    if (document.getElementById("option1").checked) {
+                                        document.getElementById("3Years").style.display = "flex";
+                                        document.getElementById("5Years").style.display = "none";
+                                        document.getElementById("10Years").style.display = "none";
+                                    } else if (document.getElementById("option2").checked) {
+                                        document.getElementById("3Years").style.display = "none";
+                                        document.getElementById("5Years").style.display = "flex";
+                                        document.getElementById("10Years").style.display = "none";
+                                    } else if (document.getElementById("option3").checked) {
+                                        document.getElementById("3Years").style.display = "none";
+                                        document.getElementById("5Years").style.display = "none";
+                                        document.getElementById("10Years").style.display = "flex";
+                                    }
+                                }
+                            </script>
+                            <h4>Outcome based on: &nbsp;&nbsp;</h4>
+                            
+                            <form onchange="myFunction()">
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <label class="btn btn-light form-check-label">
+                                        <input class="form-check-input" type="radio" name="options" id="option1" value="3Years" autocomplete="off">
+                                        3 Years
+                                    </label>
+                                    <label class="btn btn-light form-check-label">
+                                        <input class="form-check-input" type="radio" name="options" id="option2" value="5Years" autocomplete="off"> 5 Years
+                                    </label>
+                                    <label class="btn btn-light form-check-label">
+                                        <input class="form-check-input" type="radio" name="options" id="option3" value="10Years" autocomplete="off"> 10 Years
+                                    </label>
+                                </div>
+                            </form>
+                            
+                        </div>
+                        <div class="row mt-5 justify-content-around selectt" id="3Years">
+                            <h4>Min: ~@(Math.Round(s.StockFitness.PotentialOutcome3Years.Item1, 4)*100)%</h4>
+                            <h4>Max: ~@(Math.Round(s.StockFitness.PotentialOutcome3Years.Item2, 4)*100)%</h4>
+                        </div>
+                        <div class="row mt-5 justify-content-around selectt" id="5Years">
+                            <h4>Min: ~@(Math.Round(s.StockFitness.PotentialOutcome5Years.Item1, 4)*100)%</h4>
+                            <h4>Max: ~@(Math.Round(s.StockFitness.PotentialOutcome5Years.Item2, 4)*100)%</h4>
+                        </div>
+                        <div class="row mt-5 justify-content-around selectt" id="10Years">
+                            <h4>Min: ~@(Math.Round(s.StockFitness.PotentialOutcome10Years.Item1, 4)*100)%</h4>
+                            <h4>Max: ~@(Math.Round(s.StockFitness.PotentialOutcome10Years.Item2, 4)*100)%</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-5">
+                    <div class="col-md-6 col-lg-6">
+
+                        <div class="row">
+                            <div class="col font-weight-bold">
+                                ROIC
+                            </div>
+                            <div class="col">
+
+                                Slope @ValueSlopeInfo(s.RoicSlopeInfo)
+                            </div>
+                            <div class="col">
+                                Median @MedianValueInfo(s.RoicSlopeInfo, true)
+                            </div>
+                            <div class="col">
+                                Deviation @DeviationValueInfo(s.RoicSlopeInfo)
+                            </div>
+                        </div>
+                        <div class="row"><canvas id="@Html.Raw("roicChart" + index)"></canvas></div>
+                    </div>
+                    <div class="col-md-6 col-lg-6">
+
+                        <div class="row">
+                            <div class="col font-weight-bold">
+                                PE History
+                            </div>
+                            <div class="col">
+                            </div>
+                            <div class="col">
+                            </div>
+                            <div class="col">
+                            </div>
+                        </div>
+                        <div class="row"><canvas id="@Html.Raw("peChart" + index)"></canvas></div>
+                    </div>
+                </div>
+                <div class="row mt-5">
+                    <div class="col-md-6 col-lg-6">
+                        <div class="row">
+                            <div class="col font-weight-bold">
+                                Equity Growth
+                            </div>
+                            <div class="col">
+                                Slope @GrowthSlopeInfo(s.EquitySlopeInfo)
+                            </div>
+                            <div class="col">
+                                Median @MedianGrowthInfo(s.EquitySlopeInfo)
+                            </div>
+                            <div class="col">
+                                Deviation @DeviationGrowthInfo(s.EquitySlopeInfo)
+                            </div>
+                        </div>
+
+                        <div class="row"><canvas id="@Html.Raw("equityGrowthChart" + index)"></canvas></div>
+                    </div>
+                    <div class="col-md-6 col-lg-6">
+                        <div class="row">
+                            <div class="col font-weight-bold">
+                                Equity
+                            </div>
+                            <div class="col">
+                                Slope @ValueSlopeInfo(s.EquitySlopeInfo)
+                            </div>
+                            <div class="col">
+                                Median @MedianValueInfo(s.EquitySlopeInfo)
+                            </div>
+                            <div class="col">
+                                Deviation @DeviationValueInfo(s.EquitySlopeInfo)
+                            </div>
+                        </div>
+
+                        <div class="row"><canvas id="@Html.Raw("equityValueChart" + index)"></canvas></div>
+                    </div>
+                </div>
+                <div class="row mt-5">
+                    <div class="col-md-6 col-lg-6">
+                        <div class="row">
+                            <div class="col font-weight-bold">
+                                Eps Growth
+                            </div>
+                            <div class="col">
+                                Slope @GrowthSlopeInfo(s.EpsSlopeInfo)
+                            </div>
+                            <div class="col">
+                                Median @MedianGrowthInfo(s.EpsSlopeInfo)
+                            </div>
+                            <div class="col">
+                                Deviation @DeviationGrowthInfo(s.EpsSlopeInfo)
+                            </div>
+                        </div>
+
+                        <div class="row"><canvas id="@Html.Raw("epsGrowthChart" + index)"></canvas></div>
+                    </div>
+                    <div class="col-md-6 col-lg-6">
+                        <div class="row">
+                            <div class="col font-weight-bold">
+                                Eps
+                            </div>
+                            <div class="col">
+                                Slope @ValueSlopeInfo(s.EpsSlopeInfo)
+                            </div>
+                            <div class="col">
+                                Median @MedianValueInfo(s.EpsSlopeInfo)
+                            </div>
+                            <div class="col">
+                                Deviation @DeviationValueInfo(s.EpsSlopeInfo)
+                            </div>
+                        </div>
+
+                        <div class="row"><canvas id="@Html.Raw("epsValueChart" + index)"></canvas></div>
+                    </div>
+                </div>
+                <div class="row mt-5">
+
+                    <div class="col-md-6 col-lg-6">
+
+                        <div class="row">
+                            <div class="col font-weight-bold">
+                                Revenue Growth
+                            </div>
+                            <div class="col">
+                                Slope @GrowthSlopeInfo(s.RevenueSlopeInfo)
+                            </div>
+                            <div class="col">
+                                Median @MedianGrowthInfo(s.RevenueSlopeInfo)
+                            </div>
+                            <div class="col">
+                                Deviation @DeviationGrowthInfo(s.RevenueSlopeInfo)
+                            </div>
+                        </div>
+
+                        <div class="row"><canvas id="@Html.Raw("revenueGrowthChart" + index)"></canvas></div>
+                    </div>
+                    <div class="col-md-6 col-lg-6">
+
+                        <div class="row">
+                            <div class="col font-weight-bold">
+                                Revenue
+                            </div>
+                            <div class="col">
+                                Slope @ValueSlopeInfo(s.RevenueSlopeInfo)
+                            </div>
+                            <div class="col">
+                                Median @MedianValueInfo(s.RevenueSlopeInfo)
+                            </div>
+                            <div class="col">
+                                Deviation @DeviationValueInfo(s.RevenueSlopeInfo)
+                            </div>
+                        </div>
+
+                        <div class="row"><canvas id="@Html.Raw("revenueValueChart" + index)"></canvas></div>
+                    </div>
+                </div>
+                <div class="row mt-5">
+                    <div class="col-md-6 col-lg-6">
+                        <div class="row">
+                            <div class="col font-weight-bold">
+                                Market cap
+                            </div>
+                            <div class="col">
+                                5Y growth @MarketCapGrowth(s.FiveYearsMarketCapGrowth)
+                            </div>
+                            <div class="col">
+                                10Y growth @MarketCapGrowth(s.TenYearMarketCapGrowth)
+                            </div>
+                            <div class="col">
+                                Median growth @MedianGrowthInfo(s.MarketCapSlopeInfo, 0.15, 0.3)
+                            </div>
+                        </div>
+
+                        <div class="row"><canvas id="@Html.Raw("chartMarketCap" + index)"></canvas></div>
+                    </div>
+                    <div class="col-md-6 col-lg-6">
+                        <div class="row">
+                            <div class="col font-weight-bold">
+                                Dividends
+                            </div>
+                            <div class="col">
+                                Median growth @MedianGrowthInfo(s.DividendYieldSlopeInfo)
+                            </div>
+                            <div class="col">
+                            </div>
+                            <div class="col">
+                            </div>
+                        </div>
+
+                        <div class="row"><canvas id="@Html.Raw("dividends" + index)"></canvas></div>
+                    </div>
+                </div>
+
+                @{
+
+                    ChartJSCore.Models.Chart chartRoic = ChartUtils.BuildValueChart("ROIC", s.RoicSlopeInfo, true);
+                    ChartJSCore.Models.Chart chartPE = ChartUtils.BuildPEChart(s.StockFitness.PeRatiosDeltaPerYear, s.StockFitness.PriceToEarningsRatio);
+
+                    ChartJSCore.Models.Chart chartEquityValue = ChartUtils.BuildValueChart("Equity", s.EquitySlopeInfo, false);
+                    ChartJSCore.Models.Chart chartEquityGrowth = ChartUtils.BuildGrowthChart("Equity growth", s.EquitySlopeInfo);
+
+                    ChartJSCore.Models.Chart chartEpsValue = ChartUtils.BuildValueChart("Eps", s.EpsSlopeInfo);
+                    ChartJSCore.Models.Chart chartEpsGrowth = ChartUtils.BuildGrowthChart("Eps growth", s.EpsSlopeInfo);
+
+                    ChartJSCore.Models.Chart chartRevenueValue = ChartUtils.BuildValueChart("Revenue", s.RevenueSlopeInfo);
+                    ChartJSCore.Models.Chart chartRevenueGrowth = ChartUtils.BuildGrowthChart("Revenue growth", s.RevenueSlopeInfo);
+
+                    ChartJSCore.Models.Chart chartMarketCap = ChartUtils.BuildMarketCapChart(s);
+                    ChartJSCore.Models.Chart chartDividends = ChartUtils.BuildValueChart("Dividends", s.DividendYieldSlopeInfo, true);
+
+                }
+
+                <script>
+
+                                @Html.Raw(chartRoic.CreateChartCode("roicChart" + index));
+                                @Html.Raw(chartPE.CreateChartCode("peChart" + index));
+                                @Html.Raw(chartEquityValue.CreateChartCode("equityValueChart" + index));
+                                @Html.Raw(chartEquityGrowth.CreateChartCode("equityGrowthChart" + index));
+
+                                @Html.Raw(chartEpsValue.CreateChartCode("epsValueChart" + index));
+                                @Html.Raw(chartEpsGrowth.CreateChartCode("epsGrowthChart" + index));
+
+                                @Html.Raw(chartRevenueValue.CreateChartCode("revenueValueChart" + index));
+                                @Html.Raw(chartRevenueGrowth.CreateChartCode("revenueGrowthChart" + index));
+
+                                @Html.Raw(chartMarketCap.CreateChartCode("chartMarketCap" + index));
+                                @Html.Raw(chartDividends.CreateChartCode("dividends" + index));
+                </script>
+            </div>
+
+            index++;
+        }
+
+    </div>

@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Quartz" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MarketAnalyzer.Analysis\MarketAnalyzer.Analysis.csproj" />
+    <ProjectReference Include="..\MarketAnalyzer.Business\MarketAnalyzer.Business.csproj" />
+    <ProjectReference Include="..\MarketAnalyzer.Scrapper\MarketAnalyzer.Scrapper.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="CompanyNamesList.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Forbes2000List.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

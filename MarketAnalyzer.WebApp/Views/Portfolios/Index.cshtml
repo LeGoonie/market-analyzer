@@ -1,0 +1,366 @@
+﻿@using  MarketAnalyzer.WebApp.Common
+@using Microsoft.AspNetCore.Html
+@using MarketAnalyzer.Data.Extensions
+@using MarketAnalyzer.Analysis
+@model PortfolioViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    IHtmlContent SpanContent(string color, string value)
+    {
+        return Html.Raw($"<span style='color:{color}'>{value}</span>");
+    }
+
+    string ColorStyle(double totalValue, double totalInvested)
+    {
+        if (totalValue > totalInvested) return "lightgreen";
+        if (totalValue < totalInvested) return "orangered";
+        return "gold";
+    }
+
+    string DigitToWord(int number)
+    {
+        var unitsMap = new[] { "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten" };
+        var word = "collapse";
+        if (number < 11)
+            word += unitsMap[number];
+        return word;
+    }
+}
+    <div>
+        @{ var index = 0; }
+        @section Scripts{
+            <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.10.1/js/mdb.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+        }
+        <style type="text/css">
+
+            tr.hide-table-padding td {
+                padding: 0;
+            }
+
+            .expand-button {
+                position: relative;
+            }
+
+            .accordion-toggle .expand-button:after {
+                position: absolute;
+                left: .75rem;
+                top: 50%;
+                transform: translate(0, -50%);
+                content: '-';
+            }
+
+            .accordion-toggle.collapsed .expand-button:after {
+                content: '+';
+            }
+
+            .form-row input {
+                padding: 3px 1px;
+                width: 100%;
+            }
+
+            input.currency {
+                text-align: right;
+                padding-right: 15px;
+            }
+
+            .input-group .form-control {
+                float: none;
+            }
+
+            .input-group .input-buttons {
+                position: relative;
+                z-index: 3;
+            }
+        </style>
+        <div class="text-center mb-3"><h1>My Portfolio</h1></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row justify-content-between"><h2>Total Invested:</h2><h2>@(Decimal.Round((decimal)Model.TotalInvested))$</h2></div>
+                    <div class="row justify-content-between"><h2>Total Value:</h2><h2>@SpanContent(ColorStyle((double)Model.TotalValue+(double)Model.TotalWithdrawed, (double)Model.TotalInvested), (Decimal.Round((decimal)Model.TotalValue).ToString()) + '$')</h2></div>
+                    <div class="row justify-content-between"><h2>Total Withdrawed:</h2><h2>@(Decimal.Round((decimal)Model.TotalWithdrawed))$</h2></div>
+                    <div class="row justify-content-between"><h2>Total Gain/Loss:</h2><h2>@SpanContent(ColorStyle((double)Model.TotalValue+(double)Model.TotalWithdrawed, (double)Model.TotalInvested), (Decimal.Round((decimal)Model.TotalGainLoss).ToString()) + '$')</h2></div>
+                    <div class="row justify-content-between"><h2>Total Gain/Loss(%):</h2><h2>@SpanContent(ColorStyle((double)Model.TotalValue+(double)Model.TotalWithdrawed, (double)Model.TotalInvested), (Math.Round(Model.TotalGainLossPercentage, 2).ToString()) + '%')</h2></div>
+                    <div class="row justify-content-between"><h2>Balance:</h2><h2>@(Decimal.Round((decimal)Model.TotalValue + (decimal)Model.TotalWithdrawed))$</h2></div>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="@Html.Raw("investedValueChart" + index)"></canvas>
+                    @{
+                        ChartJSCore.Models.Chart chartPE = ChartUtils.BuildInvestedValueChart(Model.TotalInvestedYearValue, Model.TotalValue);
+                    }
+                    <script>
+                    @Html.Raw(chartPE.CreateChartCode("investedValueChart" + index));
+                    </script>
+                </div>
+            </div>
+            <div class="col-md-12 mt-5">
+                <div class="table-responsive text-center">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Company Name</th>
+                                <th scope="col">Stocks Owned</th>
+                                <th scope="col">Total Invested</th>
+                                <th scope="col">Total Withdrawed</th>
+                                <th scope="col">Total Value</th>
+                                <th scope="col">Total Gain/Loss</th>
+                                <th scope="col">Total Gain/Loss(%)</th>
+                                <th scope="col">Last Investment</th>
+                                <th scope="col">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in Model.ListOfPortfolios)
+                            {
+                                <tr class="accordion-toggle collapsed" id="@("accordion"+(index + 1 ))" data-toggle="collapse" data-parent="@("#accordion"+(index + 1 ))" href="@("#"+DigitToWord(index + 1))">
+                                    <td class="expand-button"></td>
+                                    <td>@p.Company.Name</td>
+                                    <td>@p.TotalStocks</td>
+                                    <td>@(Decimal.Round((decimal)p.TotalInvested, 2))</td>
+                                    <td>@(Decimal.Round((decimal)p.TotalWithdrawed, 2))</td>
+                                    <td>@(Decimal.Round((decimal)p.TotalValue, 2))</td>
+                                    <td>@(Decimal.Round((decimal)p.TotalGainLoss, 2))</td>
+                                    <td>@(Math.Round((double)p.TotalGainLossPercentage, 2))%</td>
+                                    <td style="width:10%">@p.DateOfLastInvestment.ToShortDateString()</td>
+                                    <td>@Html.ActionLink("View", "CompanyDetail", "Home", new { ticker = p.Company.Ticker, }, new { @class = "btn btn-light" })</td>
+                                </tr>
+                                <tr class="hide-table-padding">
+                                    <td></td>
+                                    <td colspan="12">
+                                        <div id="@(DigitToWord(index + 1))" class="collapse in p-3">
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Amount Of Stocks</th>
+                                                            <th scope="col">Value In Dollar</th>
+                                                            <th scope="col">Date of Transaction</th>
+                                                            <th scope="col">Type of Transaction</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var t in p.TransactionRecords.OrderByDescending(d => d.DateOfTransaction))
+                                                        {
+                                                            <tr>
+                                                                <td align="center">@(Decimal.Round((decimal)t.AmountOfStocks, 2))</td>
+                                                                <td align="center">@(Decimal.Round((decimal)t.DollarAtTimeOfTransaction, 2))</td>
+                                                                <td align="center">@t.DateOfTransaction.ToShortDateString()</td>
+                                                                <td align="center">@t.Type</td>
+                                                            </tr>
+                                                        }
+                                                        <tr>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td align="center">
+                                                            </td>
+                                                            <td align="center">
+                                                                <!-- Button trigger modal -->
+                                                                <button id="modalActivate" type="button" class="btn btn-success mr-3" data-toggle="modal" data-target="@("#exampleModalPreviewInvest"+(index+1))">
+                                                                    Invest
+                                                                </button>
+                                                                <!-- Button trigger modal -->
+                                                                <button id="modalActivate" type="button" class="btn btn-danger" data-toggle="modal" data-target="@("#exampleModalPreviewWithdraw"+(index+1))">
+                                                                    Withdraw
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="modal fade right" id="@("exampleModalPreviewInvest"+(index+1))" tabindex="-1" role="dialog" aria-labelledby="@("exampleModalPreviewInvestLabel"+(index+1))" aria-hidden="true">
+                                            <div class="modal-dialog modal-sm modal-full-height modal-right" role="document">
+                                                <div class="modal-content">
+                                                    <!--Modal cascading tabs-->
+                                                    <div class="modal-c-tabs">
+                                                        <!-- Nav tabs -->
+                                                        <ul class="nav nav-tabs md-tabs tabs-2 darken-3" role="tablist">
+                                                            <li class="nav-item">
+                                                                <a class="nav-link active" data-toggle="tab" href="@("#panel9"+(index+1))" role="tab">
+                                                                    Default
+                                                                </a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" data-toggle="tab" href="@("#panel10"+(index+1))" role="tab">
+                                                                    Custom
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+
+                                                        <!-- Tab panels -->
+                                                        <div class="tab-content">
+                                                            <!--Panel 7-->
+                                                            <div class="tab-pane fade in show active" id="@("panel9"+(index+1))" role="tabpanel">
+                                                                <div class="modal-body">
+                                                                    <h4>Add Investment to @p.Company.Name</h4>
+                                                                    <form asp-controller="Portfolios" asp-action="AddInvestmentDefault" method="post">
+                                                                        <div class="form-group">
+                                                                            <label asp-for="amountOfStocks">Amount of Stocks</label>
+                                                                            <input asp-for="amountOfStocks" value="1" class="form-control currency" />
+                                                                            <input type="hidden" id="company" asp-for="companyId" value="@p.Company.Id">
+                                                                            <input class="btn btn-light mt-2" type="submit" value="Invest" />
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+                                                                    <button type="button" class="btn btn-light">Save changes</button>
+                                                                </div>
+                                                            </div>
+                                                            <!--/.Panel 7-->
+                                                            <!--Panel 8-->
+                                                            <div class="tab-pane fade" id="@("panel10"+(index+1))" role="tabpanel">
+
+                                                                <!--Body-->
+                                                                <div class="modal-body">
+                                                                    <h4>Add Investment to @p.Company.Name</h4>
+                                                                    <form asp-controller="Portfolios" asp-action="AddInvestment" method="post">
+                                                                        <div class="form-group">
+                                                                            <label asp-for="amountOfStocks">Amount of Stocks</label>
+                                                                            <input asp-for="amountOfStocks" value="1" class="form-control currency" />
+                                                                            <label asp-for="priceOfStock">Price of Stock</label>
+                                                                            <input asp-for="priceOfStock" value="1000" class="form-control currency" id="investment" />
+                                                                            <label asp-for="dateOfInvestment">Date of Investment</label>
+                                                                            <input type="date" asp-for="dateOfInvestment" placeholder="Select Date" min="2010-01-01" class="form-control currency">
+                                                                            <input type="hidden" id="company" asp-for="companyId" value="@p.Company.Id">
+                                                                            <input class="btn btn-light mt-2" type="submit" value="Invest" />
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                                <!--Footer-->
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+                                                                    <button type="button" class="btn btn-light">Save changes</button>
+                                                                </div>
+                                                            </div>
+                                                            <!--/.Panel 8-->
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Modal
+                                    <div class="modal fade right" id="@("exampleModalPreviewInvest"+(index+1))" tabindex="-1" role="dialog" aria-labelledby="@("exampleModalPreviewInvestLabel"+(index+1))" aria-hidden="true">
+                                        <div class="modal-dialog modal-sm modal-full-height modal-right" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="@("exampleModalPreviewInvestLabel"+(index+1))">Invest</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <h4>Add Investment to @p.Company.Name</h4>
+                                                    <form asp-controller="Portfolios" asp-action="AddInvestment" method="post">
+                                                        <div class="form-group">
+                                                            <label asp-for="amountOfStocks">Amount of Stocks</label>
+                                                            <input asp-for="amountOfStocks" value="1" class="form-control currency" />
+                                                            <label asp-for="priceOfStock">Price of Stock</label>
+                                                            <input asp-for="priceOfStock" value="1000" class="form-control currency" id="investment" />
+                                                            <label asp-for="dateOfInvestment">Date of Investment</label>
+                                                            <input type="date" asp-for="dateOfInvestment" placeholder="Select Date" min="2010-01-01" class="form-control currency">
+                                                            <input type="hidden" id="company" asp-for="companyId" value="@p.Company.Id">
+                                                            <input class="btn btn-light mt-2" type="submit" value="Invest" />
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+                                                    <button type="button" class="btn btn-light">Save changes</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>-->
+                                        <div class="modal fade right" id="@("exampleModalPreviewWithdraw"+(index+1))" tabindex="-1" role="dialog" aria-labelledby="@("exampleModalPreviewWithdrawLabel"+(index+1))" aria-hidden="true">
+                                            <div class="modal-dialog modal-sm modal-full-height modal-right" role="document">
+                                                <div class="modal-content">
+                                                    <!--Modal cascading tabs-->
+                                                    <div class="modal-c-tabs">
+                                                        <!-- Nav tabs -->
+                                                        <ul class="nav nav-tabs md-tabs tabs-2 darken-3" role="tablist">
+                                                            <li class="nav-item">
+                                                                <a class="nav-link active" data-toggle="tab" href="@("#panel7"+(index+1))" role="tab">
+                                                                    Default
+                                                                </a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" data-toggle="tab" href="@("#panel8"+(index+1))" role="tab">
+                                                                    Custom
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+
+                                                        <!-- Tab panels -->
+                                                        <div class="tab-content">
+                                                            <!--Panel 7-->
+                                                            <div class="tab-pane fade in show active" id="@("panel7"+(index+1))" role="tabpanel">
+                                                                <div class="modal-body">
+                                                                    <h4>Withdraw from @p.Company.Name</h4>
+                                                                    <form asp-controller="Portfolios" asp-action="AddWithdrawDefault" method="post">
+                                                                        <div class="form-group">
+                                                                            <label asp-for="amountOfStocks">Amount of Stocks</label>
+                                                                            <input asp-for="amountOfStocks" value="1" class="form-control currency" />
+                                                                            <input type="hidden" id="company" asp-for="companyId" value="@p.Company.Id">
+                                                                            <input class="btn btn-light mt-2" type="submit" value="Withdraw" />
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+                                                                    <button type="button" class="btn btn-light">Save changes</button>
+                                                                </div>
+                                                            </div>
+                                                            <!--/.Panel 7-->
+                                                            <!--Panel 8-->
+                                                            <div class="tab-pane fade" id="@("panel8"+(index+1))" role="tabpanel">
+
+                                                                <!--Body-->
+                                                                <div class="modal-body">
+                                                                    <h4>Withdraw from @p.Company.Name</h4>
+                                                                    <form asp-controller="Portfolios" asp-action="AddWithdraw" method="post">
+                                                                        <div class="form-group">
+                                                                            <label asp-for="amountOfStocks">Amount of Stocks</label>
+                                                                            <input asp-for="amountOfStocks" value="1" class="form-control currency" />
+                                                                            <label asp-for="priceOfStock">Price of Stock</label>
+                                                                            <input asp-for="priceOfStock" value="1000" class="form-control currency" id="investment" />
+                                                                            <label asp-for="dateOfInvestment">Date of Investment</label>
+                                                                            <input type="date" asp-for="dateOfInvestment" placeholder="Select Date" min="2010-01-01" class="form-control currency">
+                                                                            <input type="hidden" id="company" asp-for="companyId" value="@p.Company.Id">
+                                                                            <input class="btn btn-light mt-2" type="submit" value="Withdraw" />
+                                                                        </div>
+                                                                    </form>
+
+                                                                </div>
+                                                                <!--Footer-->
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-danger" data-dismiss="modal">X</button>
+                                                                    <button type="button" class="btn btn-light">Save changes</button>
+                                                                </div>
+                                                            </div>
+                                                            <!--/.Panel 8-->
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                index++;
+
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+

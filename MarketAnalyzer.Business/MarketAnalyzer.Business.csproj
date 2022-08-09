@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MarketAnalyzer.Analysis\MarketAnalyzer.Analysis.csproj" />
+    <ProjectReference Include="..\MarketAnalyzer.DataAccess\MarketAnalyzer.DataAccess.csproj" />
+    <ProjectReference Include="..\MarketAnalyzer.Scrapper\MarketAnalyzer.Scrapper.csproj" />
+  </ItemGroup>
+
+</Project>

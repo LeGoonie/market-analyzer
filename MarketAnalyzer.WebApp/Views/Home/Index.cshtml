@@ -1,0 +1,200 @@
+﻿@using MarketAnalyzer.Data.Extensions
+@using  MarketAnalyzer.WebApp.Common
+@using MarketAnalyzer.Analysis
+@using Microsoft.AspNetCore.Html
+@model HomeViewModel
+
+@{
+    IHtmlContent SpanContent(string color, string value)
+    {
+        return Html.Raw($"<span style='background-color:{color}'>{value}</span>");
+    }
+
+    string ColorStyle(double value, double lowCutOff, double highCutOff, bool invert = false)
+    {
+        if (!invert)
+        {
+            if (value >= highCutOff) return "lightgreen";
+            if (value <= lowCutOff) return "orangered";
+            return "yellow";
+        }
+        else
+        {
+            if (value >= highCutOff) return "orangered";
+            if (value <= lowCutOff) return "lightgreen";
+            return "yellow";
+        }
+    }
+
+    string DigitToWord(int number)
+    {
+        var unitsMap = new[] { "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten" };
+        var word = "collapse";
+        if (number < 11)
+            word += unitsMap[number];
+        return word;
+    }
+
+}
+
+    <div>
+
+        @section Scripts {
+            <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+        }
+
+        @{ var index = 0; }
+
+        <style type="text/css">
+            .buy {
+                width: 20px;
+                height: 20px;
+            }
+
+            tr.hide-table-padding td {
+                padding: 0;
+            }
+
+            .expand-button {
+                position: relative;
+            }
+
+            .accordion-toggle .expand-button:after {
+                position: absolute;
+                left: .75rem;
+                top: 50%;
+                transform: translate(0, -50%);
+                content: '-';
+            }
+
+            .accordion-toggle.collapsed .expand-button:after {
+                content: '+';
+            }
+        </style>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('.buy').click(function () {
+                    var checkBoxId = $(this).attr('id').split('_')[0];
+                    var companyId = $(this).attr('id').split('_')[1];
+                    var isChecked = $(this).is(':checked');
+                    ajaxRequest('/home/togglebuystock', JSON.stringify({ CompanyId: companyId, CheckBoxId: checkBoxId, IsChecked: isChecked }));
+                });
+
+                $('.save-button').click(function () {
+
+                    var companyId = $(this).attr('id').split('_')[1];
+                    var textareaId = '#notes_' + companyId;
+                    var textareaContent = $(textareaId).val();
+                    ajaxRequest('home/savenotes', JSON.stringify({ CompanyId: companyId, Message: textareaContent }));
+                });
+            });
+
+            function ajaxRequest(url, data) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: data,
+                    contentType: "application/json; charset=utf-8",
+                    //dataType: "json",
+                    success: function () {
+                        //alert('it worked');
+                        //alert(data);
+                        //$('#container').html(data);
+                    },
+                    error: function () {
+                        alert('it broke');
+                    },
+                    complete: function () {
+                        //alert('it completed');
+                    }
+                });
+            }
+        </script>
+
+        @*Tabela responsiva*@
+        <div class="table-responsive text-center">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Company Name</th>
+                        <th scope="col">Ticker</th>
+                        <th scope="col">Stock Price</th>
+                        <th scope="col">Score</th>
+                        <th scope="col">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model.StocksAnalysis)
+                    {
+                        <tr class="accordion-toggle collapsed" id="@("accordion"+(index + 1 ))" data-toggle="collapse" data-parent="@("#accordion"+(index + 1 ))" href="@("#"+DigitToWord(index + 1))">
+                            <td class="expand-button"></td>
+                            <td>@s.Company.Name</td>
+                            <td>@s.Company.Ticker</td>
+                            <td>@SpanContent(ColorStyle((double)s.Company.StockPrice, (double)s.StockFitness.BuyValueStockPrice, (double)s.StockFitness.FairValueStockPrice, true), s.Company.StockPrice.Round().ToMoney())</td>
+                            <td>@s.StockFitness.FitnessTotal.Round()</td>
+                            <td>@Html.ActionLink("View", "CompanyDetail", new { ticker = s.Company.Ticker, roicMult = s.StockFitness.RoicMult, equityMult = s.StockFitness.EquityMult, epsMult = s.StockFitness.EpsMult, revenueMult= s.StockFitness.RevenueMult, peMult = s.StockFitness.PeMult, dToEMult = s.StockFitness.DToEMult, aToLMult= s.StockFitness.AToLMult }, new { @class = "btn btn-light" })</td>
+                        </tr>
+                        <tr class="hide-table-padding">
+                            <td></td>
+                            <td colspan="12">
+                                <div id="@(DigitToWord(index + 1))" class="collapse in p-3">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Fair Value</th>
+                                                    <th scope="col">Buy Value</th>
+                                                    <th scope="col">Debt To Equity</th>
+                                                    <th scope="col">Assets To Liabilities</th>
+                                                    <th scope="col">PE Ratio</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td align="center">@s.StockFitness.FairValueStockPrice.Round().ToMoney()</td>
+                                                    <td align="center">@s.StockFitness.BuyValueStockPrice.Round().ToMoney()</td>
+                                                    <td align="center">@s.StockFitness.DebtToEquityRatio.Round()</td>
+                                                    <td align="center">@s.StockFitness.CurrentAssetsToLiabilitiesRatio.Round()</td>
+                                                    <td align="center">@s.StockFitness.PriceToEarningsRatio.Round()</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    @*<div style="text-align: center;">
+                                        @Html.ActionLink("View Details", "CompanyDetail", new { ticker = s.Company.Ticker }, new { @class = "btn btn-primary" })
+                                    </div>*@
+                                </div>
+                            </td>
+                        </tr>
+                        index++;
+                    }
+                </tbody>
+            </table>
+        </div>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination pagination-circle pg-blue justify-content-center">
+                @if (Model.Skip > 0)
+                {
+                    var skipSize = Model.Skip - Model.Take > 0 ? Model.Skip - Model.Take : 0;
+                    <li class="page-item">
+                        <a class="page-link" aria-label="Previous" href="@Url.Action("Index", new { skip = skipSize, take = Model.Take, roicMult = Model.RoicMult, equityMult = Model.EquityMult, epsMult = Model.EpsMult, revenueMult = Model.RevenueMult, peMult = Model.PEMult, dToEMult = Model.DebtToEquityMult, aToLMult = Model.CurrentAssetsToLiabilitiesMult, fairValue = Model.FilterOnlyFairStocks, buyValue = Model.FilterOnlyBuyStocks })">
+                            <span aria-hidden="true">&laquo;</span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                    </li>
+                }
+                <li class="page-item"><a class="page-link" href="@Url.Action("Index", new { skip = 0, take = 10, roicMult = Model.RoicMult, equityMult = Model.EquityMult, epsMult = Model.EpsMult, revenueMult = Model.RevenueMult, peMult = Model.PEMult, dToEMult = Model.DebtToEquityMult, aToLMult = Model.CurrentAssetsToLiabilitiesMult, fairValue = Model.FilterOnlyFairStocks, buyValue = Model.FilterOnlyBuyStocks })">Home</a></li>
+                @if (Model.Skip + Model.Take < Model.Total)
+                {
+                    <li class="page-item">
+                        <a class="page-link" aria-label="Next" href="@Url.Action("Index", new {  skip = Model.Skip + Model.Take, take = Model.Take, roicMult = Model.RoicMult, equityMult = Model.EquityMult, epsMult = Model.EpsMult, revenueMult = Model.RevenueMult, peMult = Model.PEMult, dToEMult = Model.DebtToEquityMult, aToLMult = Model.CurrentAssetsToLiabilitiesMult, fairValue = Model.FilterOnlyFairStocks, buyValue = Model.FilterOnlyBuyStocks })">
+                            <span aria-hidden="true">&raquo;</span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
